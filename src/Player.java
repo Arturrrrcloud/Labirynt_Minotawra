@@ -3,19 +3,22 @@ import java.util.ArrayList;
 
 public class Player {
 
+    private final int Xforreset;
+    private final int Yforreset;
     private int x;
     private int y;
-    private int size;
+    private int size = 25;
     private int targetX;
     private int targetY;
     private int speed = 3;
 
-    public Player(int startX, int startY, int size) {
+    public Player(int startX, int startY) {
+        this.Xforreset = startX;
+        this.Yforreset = startY;
         this.x = startX;
         this.y = startY;
         this.targetX = startX;
         this.targetY = startY;
-        this.size = size;
     }
 
     public void setTarget(int mouseX, int mouseY) {
@@ -47,13 +50,21 @@ public class Player {
         }
     }
 
-    public void draw(Graphics g) {
-        g.setColor(Color.GREEN);
-        g.fillOval(x, y, size, size);
+    public void reset() {
+        x = Xforreset;
+        y = Yforreset;
+        targetX = Xforreset;
+        targetY = Yforreset;
     }
 
     public Rectangle getBounds() {
         return new Rectangle(x, y, size, size);
     }
+
+    public void draw(Graphics g) {
+        g.setColor(Color.GREEN);
+        g.fillOval(x, y, size, size);
+    }
+
 }
 
