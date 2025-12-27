@@ -42,7 +42,7 @@ public class MainWindow extends JPanel implements MouseMotionListener {
         //window parameters
         setPreferredSize(new Dimension(1024, 768));
         try {
-            backgroundImage = ImageIO.read(getClass().getResource("/resources/Assets/background.jpg"));
+            backgroundImage = ImageIO.read(getClass().getResource("/resources/Assets/background.png"));
         } catch (IOException | IllegalArgumentException e) {
             System.out.println("Не вдалося завантажити фон");
         }
