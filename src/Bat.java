@@ -1,7 +1,11 @@
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class Bat {
 
+    //game logic
     private final int Xforreset;
     private final int Yforreset;
 
@@ -17,6 +21,19 @@ public class Bat {
 
     private boolean forward = true;
 
+    //animation
+    private static final int FRAME_W = 32;
+    private static final int FRAME_H = 32;
+
+    private int frameIndex = 0;
+    private int frameCounter = 0;
+    private int frameDelay = 6;
+
+    private Image[] walkFrames;
+
+    private enum State {WALK};
+    private Bat.State state = Bat.State.WALK;
+
     public Bat(int startX, int startY, int endX, int endY){
         this.Xforreset = startX;
         this.Yforreset = startY;
@@ -26,6 +43,42 @@ public class Bat {
         this.endY = endY;
         this.x = startX;
         this.y = startY;
+
+        loadSprites();
+    }
+
+    private void loadSprites() {
+        try {
+            BufferedImage sheet =
+                    ImageIO.read(getClass().getResource("/resources/Assets/32x32-bat-sprite.png"));
+
+            // WALK — 3-й ряд (row = 2)
+            walkFrames = new Image[4];
+            int walkRow = 0;
+            for (int i = 0; i < 4; i++) {
+                walkFrames[i] = sheet.getSubimage(
+                        i * FRAME_W,
+                        walkRow * FRAME_H,
+                        FRAME_W,
+                        FRAME_H
+                );
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateAnimation() {
+        frameCounter++;
+        if (frameCounter >= frameDelay) {
+            frameCounter = 0;
+            frameIndex++;
+
+            Image[] frames = walkFrames;
+            frameIndex %= frames.length;
+        }
     }
 
     public void move() {
@@ -61,8 +114,10 @@ public class Bat {
     }
 
     public void draw(Graphics g) {
-        g.setColor(Color.RED);
-        g.fillOval(x, y, size, size);
+        Image[] frames = walkFrames;
+        Image frame = frames[frameIndex];
+
+        g.drawImage(frame, x, y, size, size, null);
     }
 
 }

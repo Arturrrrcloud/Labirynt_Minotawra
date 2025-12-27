@@ -1,24 +1,47 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 public class Player {
 
+    //game logic
     private final int Xforreset;
     private final int Yforreset;
     private int x;
     private int y;
-    private int size = 25;
+    private int size;
     private int targetX;
     private int targetY;
     private int speed = 3;
 
-    public Player(int startX, int startY) {
+    //animation
+    private static final int FRAME_W = 16;
+    private static final int FRAME_H = 16;
+
+    private int frameIndex = 0;
+    private int frameCounter = 0;
+    private int frameDelay = 6;
+
+    private Image[] idleFrames;
+    private Image[] walkFrames;
+
+    private enum State { IDLE, WALK }
+    private State state = State.IDLE;
+
+
+    public Player(int startX, int startY, int size) {
         this.Xforreset = startX;
         this.Yforreset = startY;
+        this.size = size;
         this.x = startX;
         this.y = startY;
         this.targetX = startX;
         this.targetY = startY;
+
+        loadSprites();
     }
 
     public void setTarget(int mouseX, int mouseY) {
@@ -50,6 +73,51 @@ public class Player {
         }
     }
 
+    public void updateAnimation() {
+        frameCounter++;
+        if (frameCounter >= frameDelay) {
+            frameCounter = 0;
+            frameIndex++;
+
+            Image[] frames = (state == State.WALK) ? walkFrames : idleFrames;
+            frameIndex %= frames.length;
+        }
+    }
+
+    private void loadSprites() {
+        try {
+            BufferedImage sheet =
+                    ImageIO.read(getClass().getResource("/resources/Assets/Player16x16.png"));
+
+            // WALK — 3-й ряд (row = 2)
+            walkFrames = new Image[4];
+            int walkRow = 2;
+            for (int i = 0; i < 4; i++) {
+                walkFrames[i] = sheet.getSubimage(
+                        i * FRAME_W,
+                        walkRow * FRAME_H,
+                        FRAME_W,
+                        FRAME_H
+                );
+            }
+
+            // IDLE — 4-й ряд (row = 3)
+            idleFrames = new Image[4];
+            int idleRow = 3;
+            for (int i = 0; i < 4; i++) {
+                idleFrames[i] = sheet.getSubimage(
+                        i * FRAME_W,
+                        idleRow * FRAME_H,
+                        FRAME_W,
+                        FRAME_H
+                );
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void reset() {
         x = Xforreset;
         y = Yforreset;
@@ -62,8 +130,11 @@ public class Player {
     }
 
     public void draw(Graphics g) {
-        g.setColor(Color.GREEN);
-        g.fillOval(x, y, size, size);
+
+        Image[] frames = (state == State.WALK) ? walkFrames : idleFrames;
+        Image frame = frames[frameIndex];
+
+        g.drawImage(frame, x, y, size, size, null);
     }
 
 }
